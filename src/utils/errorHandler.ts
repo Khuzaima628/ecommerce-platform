@@ -16,7 +16,7 @@ const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
       success: false,
       message: appError.message,
       error: appError,
-      stack: appError.stack,
+      // stack: appError.stack,
     });
     return;
   }
