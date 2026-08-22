@@ -3,6 +3,7 @@ import jwt, { type JwtPayload } from "jsonwebtoken";
 
 const ACCESS_TOKEN_EXPIRES_IN = "3h";
 const REFRESH_TOKEN_EXPIRES_IN = "15d";
+const RESET_TOKEN_EXPIRES_IN = "10m";
 
 const getSecret = (
   name: "ACCESS_TOKEN_SECRET" | "REFRESH_TOKEN_SECRET",
@@ -23,6 +24,15 @@ const loginRefreshToken = (payload: object): string =>
     jwtid: crypto.randomUUID(),
   });
 
+// Short-lived token that proves the user passed the forgot-password OTP
+const resetPasswordToken = (payload: object): string =>
+  jwt.sign(payload, getSecret("ACCESS_TOKEN_SECRET"), {
+    expiresIn: RESET_TOKEN_EXPIRES_IN,
+  });
+
+const verifyResetPasswordToken = (token: string): string | JwtPayload =>
+  jwt.verify(token, getSecret("ACCESS_TOKEN_SECRET"));
+
 const verifyAccessToken = (token: string): string | JwtPayload =>
   jwt.verify(token, getSecret("ACCESS_TOKEN_SECRET"));
 
@@ -32,6 +42,8 @@ const verifyRefreshToken = (token: string): string | JwtPayload =>
 export {
   loginAccessToken,
   loginRefreshToken,
+  resetPasswordToken,
+  verifyResetPasswordToken,
   verifyAccessToken,
   verifyRefreshToken,
 };

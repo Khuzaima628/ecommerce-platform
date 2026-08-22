@@ -1,6 +1,8 @@
 import joi from "joi";
 import { roles } from "@src/models/userModel";
 
+
+// Auth Validation
 export const authValidation = joi.object({
   name: joi.string().min(3).required().messages({
     "string.base": "name should be a type of text",
@@ -22,10 +24,11 @@ export const authValidation = joi.object({
     .string()
     .valid(...Object.values(roles))
     .messages({
-      "any.only": `role must be one of [${roles}]`,
+      "any.only": `role must be one of [${Object.values(roles)}]`,
     }),
 });
 
+// Login Validation
 export const loginValidation = joi.object({
   email: joi.string().email().required().messages({
     "string.email": "please enter valid email",
@@ -39,6 +42,7 @@ export const loginValidation = joi.object({
   }),
 });
 
+// OTP Validation
 export const otpValidation = joi.object({
   email: joi.string().email().required().messages({
     "string.email": "please enter valid email",
@@ -52,6 +56,7 @@ export const otpValidation = joi.object({
   }),
 });
 
+// Forgot Password Validation
 export const forgotPasswordValidation = joi.object({
   email: joi.string().email().required().messages({
     "string.email": "please enter valid email",
@@ -60,7 +65,13 @@ export const forgotPasswordValidation = joi.object({
   }),
 });
 
+// Reset Password Validation
 export const resetPasswordValidation = joi.object({
+  resetToken: joi.string().required().messages({
+    "string.empty": "reset token cannot be empty",
+    "any.required": "reset token is required",
+  }),
+
   newPassword: joi.string().min(6).required().messages({
     "string.min": "password should have minimum 6 characters",
     "string.empty": "password cannot be empty",

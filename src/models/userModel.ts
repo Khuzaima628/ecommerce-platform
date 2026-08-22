@@ -45,7 +45,6 @@ const userSchema = new Schema(
     },
     otp: {
       type: Number,
-      required: [true, "OTP is Required"],
       max: [999999, "OTP must be 6 digits only"],
       validate: {
         validator: (value: string | null) =>
@@ -55,7 +54,6 @@ const userSchema = new Schema(
     },
     otpExpiry: {
       type: Date,
-      required: true,
     },
   },
   { timestamps: true },
