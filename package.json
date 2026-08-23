@@ -11,7 +11,8 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "minio": "set MINIO_ROOT_USER=admin&& set MINIO_ROOT_PASSWORD=aszx1234&& D:/minio-data/minio.exe server D:/minio-data --console-address :9001"
   },
   "keywords": [],
   "author": "",

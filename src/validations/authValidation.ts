@@ -1,7 +1,6 @@
 import joi from "joi";
 import { roles } from "@src/models/userModel";
 
-
 // Auth Validation
 export const authValidation = joi.object({
   name: joi.string().min(3).required().messages({
@@ -19,6 +18,11 @@ export const authValidation = joi.object({
     "string.min": "password should have minimum 6 characters",
     "string.empty": "password cannot be empty",
     "any.required": "password is required",
+  }),
+  profilePicture: joi.string().max(1).messages({
+    "string.min": "only 1 image is required",
+    "string.empty": "only 1 image is required",
+    "any.required": "only 1 image is required",
   }),
   role: joi
     .string()
@@ -88,3 +92,28 @@ export const resetPasswordValidation = joi.object({
       "any.required": "confirm password is required",
     }),
 });
+
+// Token Rotation Validation
+export const tokenRotationValidation = joi.object({
+  refreshToken: joi.string().required().messages({
+    "string.empty": "refresh token cannot be empty",
+    "any.required": "refresh token is required",
+  }),
+});
+
+export const updateProfileValidation = joi
+  .object({
+    name: joi.string().min(3).messages({
+      "string.base": "Name must be a string",
+      "string.min": "Name must be at least 3 characters long",
+    }),
+
+    profilePicture: joi.string().uri().messages({
+      "string.base": "Profile picture must be a string",
+      "string.uri": "Profile picture must be a valid URL",
+    }),
+  })
+  .min(1)
+  .messages({
+    "object.min": "At least one field is required to update your profile",
+  });

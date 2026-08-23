@@ -2,9 +2,9 @@ import catchAsync from "@src/utils/catchAsync";
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken } from "@src/utils/jwt";
 import AppError from "@src/utils/appError";
-import {userModel} from "@src/models/userModel"
+import { userModel } from "@src/models/userModel";
 
-export const authMiddleware = catchAsync(
+export const protectMiddleware = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
@@ -21,14 +21,14 @@ export const authMiddleware = catchAsync(
       throw new AppError(401, "Invalid token. Please log in again.");
     }
 
-    const currentUser = await userModel.findById(decoded.id);
-    if (!currentUser) {
+    const user = await userModel.findById(decoded.id);
+    if (!user) {
       throw new AppError(
         401,
         "The user belonging to this token does no longer exist.",
       );
     }
-    req.user = currentUser;
+    req.user = user;
     next();
   },
 );

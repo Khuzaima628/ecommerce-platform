@@ -25,11 +25,13 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is Required"],
       minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
     },
     profilePicture: {
       type: String,
       default:
         "https://res.cloudinary.com/dk4l1jz0g/image/upload/v1682171506/avatar_default_gm2f1p.png",
+        max:[1,"only 1 image is required"]
     },
     role: {
       type: String,
@@ -59,6 +61,6 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-type userType = InferSchemaType<typeof userSchema>
+type userType = InferSchemaType<typeof userSchema>;
 const userModel = models.User || model("User", userSchema);
 export { userModel, type userType, roles };

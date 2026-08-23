@@ -5,14 +5,17 @@ import { userType } from "@src/models/userModel";
 import {
   OtpBody,
   LoginType,
-  ForgotPasswordType,
   resetPassword,
+  tokenRotationType,
+  UpdateProfileInput,
+  ForgotPasswordType,
   forgotPasswordOtpType,
 } from "@src/types/authTypes";
 import {
   loginRefreshToken,
   loginAccessToken,
   resetPasswordToken,
+  verifyRefreshToken,
   verifyResetPasswordToken,
 } from "@src/utils/jwt";
 
@@ -89,6 +92,9 @@ export const loginService = async (body: LoginType) => {
   const user = await userModel
     .findOne({ email: body.email })
     .select("+password");
+  if (!user) {
+    throw new AppError(400, "No Active account on This Email");
+  }
   if (user?.isVerified === false) {
     throw new AppError(400, "Please verify your account first");
   }
@@ -211,6 +217,64 @@ export const resetPasswordService = async (body: resetPassword) => {
   return null;
 };
 
+// Token Rotation Service
+export const tokenRotationService = async (body: tokenRotationType) => {
+  // The refresh token itself tells us who the user is.
+  let payload: { id?: string };
+  try {
+    payload = verifyRefreshToken(body.refreshToken) as { id?: string };
+  } catch {
+    throw new AppError(401, "Refresh token is invalid or expired. Please login again.");
+  }
 
-// Token Rotation
+  if (!payload.id) {
+    throw new AppError(401, "Refresh token is invalid. Please login again.");
+  }
 
+  const user = await userModel.findById(payload.id);
+  if (!user) {
+    throw new AppError(401, "The user of this token no longer exists.");
+  }
+
+  if (!user.isVerified) {
+    throw new AppError(401, "Please verify your email first");
+  }
+
+  // Give a fresh access token
+  const newAccessToken = loginAccessToken({ id: user._id, role: user.role });
+
+  return { newAccessToken };
+};
+
+// Get me
+export const getMeService = async (id: string) => {
+  const user = await userModel.findById(id);
+  if (!user) {
+    throw new AppError(404, "No user found with this id");
+  }
+  if (user.isVerified === false) {
+    throw new AppError(401, "Please verify your email first");
+  }
+
+  return user;
+};
+
+// Update Profile
+export const updateProfileService = async (
+  id: string,
+  body: UpdateProfileInput,
+) => {
+  const user = await userModel.findByIdAndUpdate(
+    id,
+    { ...body },
+    {
+      new: true,
+    },
+  );
+
+  if (!user) {
+    throw new AppError(404, "No user found with this id");
+  }
+
+  return user;
+};

@@ -1,21 +1,26 @@
 import route from "express";
 import validateSchemaPayload from "@src/utils/validateSchemaPayload";
 import {
-  authValidation,
   otpValidation,
+  authValidation,
   loginValidation,
-  forgotPasswordValidation,
+  tokenRotationValidation,
   resetPasswordValidation,
+  updateProfileValidation,
+  forgotPasswordValidation,
 } from "@src/validations/authValidation";
 import {
+  getMeController,
+  loginController,
   signUpController,
   optVerifyController,
-  loginController,
+  updateProfileController,
+  tokenRotationController,
+  resetPasswordController,
   forgotPasswordController,
   verifyForgotPasswordOtpController,
-  resetPasswordController,
 } from "@src/controllers/authController";
-
+import { protectMiddleware } from "@src/middlewares/protectMiddleware";
 // Router instance for auth
 const authRoute = route.Router();
 
@@ -47,9 +52,17 @@ authRoute.post(
   forgotPasswordController,
 );
 
+// POST /api/v1/auth/refresh-token
+authRoute.post(
+  "/refresh-token",
+  validateSchemaPayload(tokenRotationValidation),
+  tokenRotationController,
+);
+
 // POST /api/v1/auth/verify-forgot-password-otp
 authRoute.post(
   "/verify-forgot-password-otp",
+  // validateSchemaPayload(otpValidation,body),
   validateSchemaPayload(otpValidation),
   verifyForgotPasswordOtpController,
 );
@@ -59,6 +72,16 @@ authRoute.post(
   "/reset-password",
   validateSchemaPayload(resetPasswordValidation),
   resetPasswordController,
+);
+
+// Get /api/v1/auth/get-me
+authRoute.get("/get-me", protectMiddleware, getMeController);
+
+//PATCG /api/v1/auth/update-profile
+authRoute.patch(
+  "/get-me",
+  validateSchemaPayload(updateProfileValidation),
+  updateProfileController,
 );
 
 export default authRoute;
