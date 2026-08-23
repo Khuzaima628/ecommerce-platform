@@ -1,12 +1,14 @@
 import bcrypt from "bcryptjs";
 import AppError from "@src/utils/appError";
+import { getFileViewUrl } from "@src/services/mediaService";
 import { userModel } from "@src/models/userModel";
 import { userType } from "@src/models/userModel";
 import {
   OtpBody,
   LoginType,
-  ForgotPasswordType,
   resetPassword,
+  UpdateProfileInput,
+  ForgotPasswordType,
   forgotPasswordOtpType,
 } from "@src/types/authTypes";
 import {
@@ -211,6 +213,43 @@ export const resetPasswordService = async (body: resetPassword) => {
   return null;
 };
 
+// Get me
+export const getMeService = async (id: string) => {
+  const user = await userModel.findById(id);
+  if (!user) {
+    throw new AppError(404, "No user found with this id");
+  }
+  if (user.isVerified === false) {
+    throw new AppError(401, "Please verify your email first");
+  }
 
-// Token Rotation
+  // Swap the stored link for a short, signed view link
+  const safeUser = user.toObject();
+  safeUser.profilePicture = await getFileViewUrl(safeUser.profilePicture);
 
+  return safeUser;
+};
+
+// Update Profile
+export const updateProfileService = async (
+  id: string,
+  body: UpdateProfileInput,
+) => {
+  const user = await userModel.findByIdAndUpdate(
+    id,
+    { ...body },
+    {
+      new: true,
+    },
+  );
+
+  if (!user) {
+    throw new AppError(404, "No user found with this id");
+  }
+
+  // Swap the stored link for a short, signed view link
+  const safeUser = user.toObject();
+  safeUser.profilePicture = await getFileViewUrl(safeUser.profilePicture);
+
+  return safeUser;
+};

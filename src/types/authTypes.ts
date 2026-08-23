@@ -26,3 +26,9 @@ export interface resetPassword {
   resetToken: string;
   newPassword: string;
 }
+
+export interface UpdateProfileInput {
+  name?: string;
+  email?: string;
+  profilePicture?: string;
+}

@@ -25,6 +25,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is Required"],
       minlength: [6, "Password must be at least 6 characters long"],
+      select: false,
     },
     profilePicture: {
       type: String,
@@ -59,6 +60,6 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-type userType = InferSchemaType<typeof userSchema>
+type userType = InferSchemaType<typeof userSchema>;
 const userModel = models.User || model("User", userSchema);
 export { userModel, type userType, roles };

@@ -1,21 +1,23 @@
 import route from "express";
 import validateSchemaPayload from "@src/utils/validateSchemaPayload";
 import {
-  authValidation,
   otpValidation,
+  authValidation,
   loginValidation,
   forgotPasswordValidation,
   resetPasswordValidation,
 } from "@src/validations/authValidation";
 import {
+  getMeController,
+  loginController,
   signUpController,
   optVerifyController,
-  loginController,
+  updateProfileController,
+  resetPasswordController,
   forgotPasswordController,
   verifyForgotPasswordOtpController,
-  resetPasswordController,
 } from "@src/controllers/authController";
-
+import { protectMiddleware } from "@src/middlewares/protectMiddleware";
 // Router instance for auth
 const authRoute = route.Router();
 
@@ -60,5 +62,11 @@ authRoute.post(
   validateSchemaPayload(resetPasswordValidation),
   resetPasswordController,
 );
+
+// Get /api/v1/auth/get-me
+authRoute.get("/get-me", protectMiddleware, getMeController);
+
+//PATCG /api/v1/auth/update-profile
+authRoute.patch("/get-me",protectMiddleware, updateProfileController)
 
 export default authRoute;
