@@ -11,6 +11,10 @@ const s3 = new S3Client({
   forcePathStyle: true, // MinIO needs this. AWS does not.
 });
 
+// Private files (profile pictures)
 const BUCKET = process.env.MINIO_BUCKET as string;
 
-export { s3, BUCKET };
+// Public files (products, banners)
+const PUBLIC_BUCKET = process.env.MINIO_PUBLIC_BUCKET as string;
+
+export { s3, BUCKET, PUBLIC_BUCKET };

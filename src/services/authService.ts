@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import AppError from "@src/utils/appError";
-import { getFileViewUrl } from "@src/services/mediaService";
 import { userModel } from "@src/models/userModel";
 import { userType } from "@src/models/userModel";
 import {
@@ -91,6 +90,9 @@ export const loginService = async (body: LoginType) => {
   const user = await userModel
     .findOne({ email: body.email })
     .select("+password");
+    if(!user){
+    throw new AppError(400, "No Active account on This Email");
+    }
   if (user?.isVerified === false) {
     throw new AppError(400, "Please verify your account first");
   }
@@ -223,11 +225,7 @@ export const getMeService = async (id: string) => {
     throw new AppError(401, "Please verify your email first");
   }
 
-  // Swap the stored link for a short, signed view link
-  const safeUser = user.toObject();
-  safeUser.profilePicture = await getFileViewUrl(safeUser.profilePicture);
-
-  return safeUser;
+  return user;
 };
 
 // Update Profile
@@ -247,9 +245,5 @@ export const updateProfileService = async (
     throw new AppError(404, "No user found with this id");
   }
 
-  // Swap the stored link for a short, signed view link
-  const safeUser = user.toObject();
-  safeUser.profilePicture = await getFileViewUrl(safeUser.profilePicture);
-
-  return safeUser;
+  return user;
 };

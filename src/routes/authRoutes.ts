@@ -6,6 +6,7 @@ import {
   loginValidation,
   forgotPasswordValidation,
   resetPasswordValidation,
+  updateProfileValidation
 } from "@src/validations/authValidation";
 import {
   getMeController,
@@ -52,6 +53,7 @@ authRoute.post(
 // POST /api/v1/auth/verify-forgot-password-otp
 authRoute.post(
   "/verify-forgot-password-otp",
+  // validateSchemaPayload(otpValidation,body),
   validateSchemaPayload(otpValidation),
   verifyForgotPasswordOtpController,
 );
@@ -67,6 +69,6 @@ authRoute.post(
 authRoute.get("/get-me", protectMiddleware, getMeController);
 
 //PATCG /api/v1/auth/update-profile
-authRoute.patch("/get-me",protectMiddleware, updateProfileController)
+authRoute.patch("/get-me",protectMiddleware,validateSchemaPayload(updateProfileValidation), updateProfileController)
 
 export default authRoute;

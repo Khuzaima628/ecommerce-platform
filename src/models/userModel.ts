@@ -31,6 +31,7 @@ const userSchema = new Schema(
       type: String,
       default:
         "https://res.cloudinary.com/dk4l1jz0g/image/upload/v1682171506/avatar_default_gm2f1p.png",
+        max:[1,"only 1 image is required"]
     },
     role: {
       type: String,
