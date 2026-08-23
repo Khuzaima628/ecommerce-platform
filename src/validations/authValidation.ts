@@ -93,6 +93,14 @@ export const resetPasswordValidation = joi.object({
     }),
 });
 
+// Token Rotation Validation
+export const tokenRotationValidation = joi.object({
+  refreshToken: joi.string().required().messages({
+    "string.empty": "refresh token cannot be empty",
+    "any.required": "refresh token is required",
+  }),
+});
+
 export const updateProfileValidation = joi
   .object({
     name: joi.string().min(3).messages({

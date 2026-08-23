@@ -4,9 +4,10 @@ import {
   otpValidation,
   authValidation,
   loginValidation,
-  forgotPasswordValidation,
+  tokenRotationValidation,
   resetPasswordValidation,
-  updateProfileValidation
+  updateProfileValidation,
+  forgotPasswordValidation,
 } from "@src/validations/authValidation";
 import {
   getMeController,
@@ -14,6 +15,7 @@ import {
   signUpController,
   optVerifyController,
   updateProfileController,
+  tokenRotationController,
   resetPasswordController,
   forgotPasswordController,
   verifyForgotPasswordOtpController,
@@ -50,6 +52,13 @@ authRoute.post(
   forgotPasswordController,
 );
 
+// POST /api/v1/auth/refresh-token
+authRoute.post(
+  "/refresh-token",
+  validateSchemaPayload(tokenRotationValidation),
+  tokenRotationController,
+);
+
 // POST /api/v1/auth/verify-forgot-password-otp
 authRoute.post(
   "/verify-forgot-password-otp",
@@ -69,6 +78,10 @@ authRoute.post(
 authRoute.get("/get-me", protectMiddleware, getMeController);
 
 //PATCG /api/v1/auth/update-profile
-authRoute.patch("/get-me",protectMiddleware,validateSchemaPayload(updateProfileValidation), updateProfileController)
+authRoute.patch(
+  "/get-me",
+  validateSchemaPayload(updateProfileValidation),
+  updateProfileController,
+);
 
 export default authRoute;

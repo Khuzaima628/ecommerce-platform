@@ -27,6 +27,12 @@ export interface resetPassword {
   newPassword: string;
 }
 
+// tokenRotationType
+export interface tokenRotationType {
+  refreshToken: string;
+}
+
+// UpdateProfileInput
 export interface UpdateProfileInput {
   name?: string;
   email?: string;
