@@ -11,10 +11,7 @@ const s3 = new S3Client({
   forcePathStyle: true, // MinIO needs this. AWS does not.
 });
 
-// Private files (profile pictures)
+// All our images live in this one bucket, inside folders.
 const BUCKET = process.env.MINIO_BUCKET as string;
 
-// Public files (products, banners)
-const PUBLIC_BUCKET = process.env.MINIO_PUBLIC_BUCKET as string;
-
-export { s3, BUCKET, PUBLIC_BUCKET };
+export { s3, BUCKET };
