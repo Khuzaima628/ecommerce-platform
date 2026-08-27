@@ -35,6 +35,7 @@ export const signUpService = async (body: userType) => {
 
   // Create an OTP Expiry
   const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+  console.log("otp is".bgBrightBlue, otp);
 
   // Create New User
   const createUser = await userModel.create({
@@ -224,7 +225,10 @@ export const tokenRotationService = async (body: tokenRotationType) => {
   try {
     payload = verifyRefreshToken(body.refreshToken) as { id?: string };
   } catch {
-    throw new AppError(401, "Refresh token is invalid or expired. Please login again.");
+    throw new AppError(
+      401,
+      "Refresh token is invalid or expired. Please login again.",
+    );
   }
 
   if (!payload.id) {
