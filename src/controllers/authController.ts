@@ -34,6 +34,7 @@ export const optVerifyController = catchAsync(
 // Login Contoller
 export const loginController = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
+    console.log("id form login controller")
     const user = await loginService(req.body);
     const message = "User logged in successfully";
     apiResponse.success(res, user, message, 200);

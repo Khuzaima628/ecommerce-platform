@@ -1,53 +1,66 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3, BUCKET, PUBLIC_BUCKET } from "@src/config/s3";
-import AppError from "@src/utils/appError";
-import { folders, type folderType } from "@src/types/mediaTypes";
+import {
+  PutObjectCommand,
+  ListObjectsV2Command,
+  HeadObjectCommand,
+  CopyObjectCommand,
+  DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3, BUCKET } from "@src/config/s3";
+import type { presignedUrlType } from "@src/types/mediaTypes";
 
-// Which bucket each folder goes to.
-const bucketOf = (folder: folderType): string =>
-  folder === "profile" ? BUCKET : PUBLIC_BUCKET;
+const EXPIRES_IN = 300;
 
-// Put ONE file into MinIO and give back its address.
-const uploadOne = async (
-  file: Express.Multer.File,
-  folder: folderType,
-): Promise<string> => {
-  const bucket = bucketOf(folder);
+export const presignedUrlService = async (body: presignedUrlType) => {
+  const key = `${body.folder}/${Date.now()}-${body.fileName}`;
+  const command = new PutObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+    ContentType: body.fileType,
+    ContentLength: body.fileSize,
+  });
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: EXPIRES_IN });
+  const fileUrl = `${process.env.MINIO_ENDPOINT}/${BUCKET}/${key}`;
+  // const check = await s3.send(
+  //   new ListObjectsV2Command({
+  //     Bucket: BUCKET,
+  //     Prefix: "product/",
+  //     MaxKeys: 5,
+  //   }),
+  // );
+  // const size = await s3.send(
+  //   new HeadObjectCommand({
+  //     Bucket: BUCKET,
+  //     Key: "profile/1787597566594-a.png",
+  //   }),
+  // );
+  // const oldKey = "profile/1787597566594-a.png";
+  // const newKey = "profile/avatar.png";
+  // const prefix = "product/muhammad/";
+  // const newKeyFun = await s3.send(
+  //   new CopyObjectCommand({
+  //     Bucket: BUCKET,
+  //     Key: key,
+  //     CopySource: `${BUCKET}/${oldKey}`,
+  //   }),
+  // );
+  // // 1. find every file inside that folder
+  // const list = await s3.send(
+  //   new ListObjectsV2Command({ Bucket: BUCKET, Prefix: prefix }),
+  // );
 
-  const key = `${folder}/${Date.now()}-${file.originalname}-${file.stream}`;
-
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    }),
-  );
-  const url= `${process.env.MINIO_ENDPOINT}/${bucket}/${key}`
-
-  console.log("+__+__+__+__+".bgBrightMagenta,url)
-  return url ;
-};
-
-// Take the files our server received and put them ALL into MinIO.
-export const uploadFileService = async (
-  files?: Express.Multer.File[],
-  folder = "profile",
-) => {
-  if (!files || files.length === 0) {
-    throw new AppError(400, "file is required");
-  }
-
-  if (!folders.includes(folder as folderType)) {
-    throw new AppError(400, `folder must be one of [${folders}]`);
-  }
-
-  // Upload them at the same time, not one after another
-  const fileUrls = await Promise.all(
-    files.map((file) => uploadOne(file, folder as folderType)),
-  );
-  console.log("+__+__+__+__+".bgBrightMagenta,fileUrls)
-
-  return { fileUrls };
+  // // 2. delete them all together
+  // const deleteFun = await s3.send(
+  //   new DeleteObjectsCommand({
+  //     Bucket: BUCKET,
+  //     Delete: {
+  //       Objects: (list.Contents ?? []).map((file) => ({ Key: file.Key })),
+  //     },
+  //   }),
+  // );
+  // // console.log("Bucket Checks".bgBrightWhite,check)
+  // console.log("Bucket Checks".bgBrightWhite, deleteFun);
+  // // console.log("Bucket Checks".bgBrightWhite,newKeyFun)
+  // // console.log("Bucket Size Checks".bgBrightWhite,size.ContentLength)
+  return { uploadUrl, fileUrl };
 };
