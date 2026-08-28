@@ -1,4 +1,4 @@
-# Backend Setup Steps (TypeScript)
+inlo# Backend Setup Steps (TypeScript)
 
 This document outlines the step-by-step process for setting up the backend project using Node.js, Express, and TypeScript.
 
@@ -22,7 +22,7 @@ npm init -y
 **Action:** Install TypeScript dependencies and initialize `tsconfig.json`.
 
 **Details:**
-Node.js cannot execute TypeScript directly, so we need a compiler to convert it to standard JavaScript. We install `typescript` as a development dependency. We also install `@types/node` so TypeScript understands Node.js built-in modules, and `ts-node-dev` which automatically restarts the server when code changes during development. 
+Node.js cannot execute TypeScript directly, so we need a compiler to convert it to standard JavaScript. We install `typescript` as a development dependency. We also install `@types/node` so TypeScript understands Node.js built-in modules, and `ts-node-dev` which automatically restarts the server when code changes during development.
 
 After installing the packages, we configure the compiler options in a `tsconfig.json` file, specifying that our source code is in `src/` and the compiled JavaScript should go into `dist/`.
 
@@ -59,7 +59,7 @@ We configure `tsconfig.json` with `baseUrl: "."` and `paths: { "@src/*": ["src/*
 
 In `src/app.ts`, we initialize our Express instance, handle standard JSON parsing middleware, and expose a base `GET /` endpoint that returns a welcome JSON payload. We then export this Express app instance using ES module `export default` syntax.
 
-In `src/server.ts`, we import this `app` instance and start listening on a defined port (default 5000). 
+In `src/server.ts`, we import this `app` instance and start listening on a defined port (default 5000).
 
 Finally, we update `package.json` with a `"dev"` script leveraging `ts-node-dev` (and `tsconfig-paths/register`). This script runs and automatically restarts our TypeScript server on every file change, replacing the need for tools like `nodemon`.
 
@@ -74,7 +74,7 @@ npm install -D @types/express tsconfig-paths
 **Action:** Set up Morgan for logging, ESLint for code quality, and Zod for strict environment variable validation.
 
 **Details:**
-To improve the development experience, we add `morgan` as an Express middleware to log incoming HTTP requests automatically. 
+To improve the development experience, we add `morgan` as an Express middleware to log incoming HTTP requests automatically.
 
 We also configure ESLint with the latest flat configuration format (`eslint.config.mjs`) specifically for TypeScript to catch unused imports and potential bugs in real-time. We integrate this into our `npm run dev` script to ensure we get immediate terminal warnings.
 
@@ -91,7 +91,7 @@ npm install -D @types/morgan eslint @eslint/js typescript-eslint
 **Action:** Add MongoDB connection string to environment variables and connect via Mongoose.
 
 **Details:**
-We introduce MongoDB to our application by first installing `mongoose`, a popular Object Data Modeling (ODM) library for MongoDB and Node.js. 
+We introduce MongoDB to our application by first installing `mongoose`, a popular Object Data Modeling (ODM) library for MongoDB and Node.js.
 
 We added our MongoDB connection string and credentials into the `.env` file and strictly typed them in our Zod schema (`src/config/env.ts`). Then, we created a dedicated database configuration file `src/config/db.ts` which handles the connection logic to connect to the provided URI string.
 
@@ -144,7 +144,7 @@ export type { EnrollmentType };
 **Details:**
 To prevent brute-force attacks and abuse of our API, we implement rate limiting using the `express-rate-limit` middleware. We configured it to limit each IP address to a maximum of 100 requests per hour specifically for routes starting with `/api`. If an IP exceeds this limit, a `429 Too Many Requests` error with a custom message is returned.
 
-We also use `helmet` to automatically set various HTTP headers for robust security (e.g., hiding the `X-Powered-By` header, setting XSS protection, etc.). 
+We also use `helmet` to automatically set various HTTP headers for robust security (e.g., hiding the `X-Powered-By` header, setting XSS protection, etc.).
 
 To prevent Denial of Service (DoS) attacks where attackers could send excessively large JSON payloads that consume memory, we update our `express.json()` middleware to enforce a maximum body size of `10kb`.
 

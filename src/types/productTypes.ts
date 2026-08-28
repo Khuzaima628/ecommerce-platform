@@ -24,3 +24,8 @@ export interface CreateProductInput {
 
 // For PATCH /products/:id (Update)
 export type UpdateProductInput = Partial<CreateProductInput>;
+
+// Stock Type
+export interface stockType {
+    change:number
+}

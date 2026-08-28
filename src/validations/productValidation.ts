@@ -42,6 +42,13 @@ export const productValidation = joi.object({
     "number.min": "Stock cannot be negative",
   }),
 
+  images: joi.array().min(1).max(3).required().messages({
+    "array.base": "Images must be an array",
+    "array.min": "At least 1 image is required",
+    "array.max": "Maximum 3 images allowed",
+    "any.required": "Images are required",
+  }),
+
   category: joi
     .string()
     .valid(...Object.values(Category))
@@ -86,58 +93,57 @@ export const productValidation = joi.object({
 // Product Update Validation — same rules, nothing required
 export const productUpdateValidation = joi
   .object({
-    productName: joi.string().trim().min(3).max(100).messages({
+    productName: joi.string().trim().min(3).max(100).optional().messages({
       "string.empty": "Product name cannot be empty",
       "string.min": "Product name should have minimum 3 characters",
       "string.max": "Product name should have maximum 100 characters",
     }),
 
-    description: joi.string().trim().min(5).max(2000).messages({
+    description: joi.string().trim().min(5).max(2000).optional().messages({
       "string.empty": "Description cannot be empty",
       "string.min": "Description should have minimum 5 characters",
       "string.max": "Description should have maximum 2000 characters",
     }),
 
-    price: joi.number().min(1).max(999999.99).messages({
+    price: joi.number().min(1).max(999999.99).optional().messages({
       "number.base": "Price should be a number",
       "number.min": "Price should be greater than 1",
       "number.max": "Price exceeds maximum limit",
     }),
 
-    stock: joi.number().min(0).messages({
+    images: joi.array().min(1).max(3).optional().messages({
+      "array.base": "Images must be an array",
+      "array.min": "At least 1 image is required",
+      "array.max": "Maximum 3 images allowed",
+    }),
+
+    stock: joi.number().min(0).optional().messages({
       "number.base": "Stock should be a number",
       "number.min": "Stock cannot be negative",
     }),
 
-    category: joi
-      .string()
-      .valid(...Object.values(Category))
-      .messages({
-        "any.only":
-          "Category must be one of: " + Object.values(Category).join(", "),
-      }),
+    category: joi.string().trim().valid(...Object.values(Category)).optional().messages({
+      "string.empty": "Category cannot be empty",
+      "any.only": "Category must be one of: " + Object.values(Category).join(", "),
+    }),
 
-    sku: joi.string().trim().uppercase().min(3).max(50).messages({
+    sku: joi.string().trim().uppercase().min(3).max(50).optional().messages({
       "string.empty": "SKU cannot be empty",
       "string.min": "SKU should have minimum 3 characters",
       "string.max": "SKU should have maximum 50 characters",
     }),
 
-    tags: joi
-      .array()
-      .items(joi.string().valid(...Object.values(Tag)))
-      .min(1)
-      .messages({
-        "array.min": "At least 1 tag is required",
-        "array.base": "Tags must be an array",
-        "any.only": "Invalid tag value",
-      }),
+    tags: joi.array().items(joi.string().valid(...Object.values(Tag))).min(1).optional().messages({
+      "array.min": "At least 1 tag is required",
+      "array.base": "Tags must be an array",
+      "any.only": "Invalid tag value",
+    }),
 
-    specifications: joi.array().items(specificationItem).messages({
+    specifications: joi.array().items(specificationItem).min(1).optional().messages({
       "array.base": "Specifications must be an array",
     }),
 
-    returns_note: joi.string().trim().min(5).messages({
+    returns_note: joi.string().trim().min(5).optional().messages({
       "string.empty": "Return notes cannot be empty",
       "string.min": "Return notes must be at least 5 characters",
     }),
