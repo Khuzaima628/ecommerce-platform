@@ -41,6 +41,18 @@ const productSchema = new Schema(
       minLength: [5, "Minimum 5 characters long"],
       maxLength: [2000, "Maximum 2000 characters long"],
     },
+    isHidden:{
+      type:Boolean,
+      default:false
+    },
+    images:
+      [
+        {
+          type: String,
+          required: [true, "Image URL is required"],
+          trim: true,
+        },
+      ],
     price: {
       type: Number,
       required: [true, "Price is required"],
