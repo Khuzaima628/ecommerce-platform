@@ -6,6 +6,8 @@ import {
   deleteProductController,
   getProductByIdController,
   increseStockController,
+  hideProductController,
+  getAllProductsController,
 } from "@src/controllers/productController";
 import validateSchemaPayload from "@src/utils/validateSchemaPayload";
 import {
@@ -24,6 +26,13 @@ productRoute.put(
   "/product/increase-stock/:pid",
   protectMiddleware,
   increseStockController,
+);
+
+// Hide Product — must be before /product/:pid to avoid route conflict
+productRoute.patch(
+  "/product/hide/:pid",
+  protectMiddleware,
+  hideProductController,
 );
 
 // Create Product Route
@@ -51,4 +60,10 @@ productRoute.delete(
   protectMiddleware,
   deleteProductController,
 );
+
+// =========================  CUSTOMER ROUTES   =========================
+
+// Get all Products (CUSTOMER)
+productRoute.get("/all-products", protectMiddleware, getAllProductsController);
+
 export default productRoute;

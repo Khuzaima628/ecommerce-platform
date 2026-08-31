@@ -1,3 +1,4 @@
+import type { PipelineStage } from "mongoose";
 import productModel from "@src/models/productModel";
 import { userModel } from "@src/models/userModel";
 import { CreateProductInput, stockType } from "@src/types/productTypes";
@@ -28,7 +29,7 @@ export const createProductService = async (
 };
 
 // Get Product Service
-export const getProductsService = async (id: string) => {
+export const getSellerProductsService = async (id: string) => {
   if (!id) {
     throw new AppError(404, "User not found");
   }
@@ -121,7 +122,7 @@ export const increseStockService = async (
     { $inc: { stock: body.change } },
     { new: true },
   );
-  return null;
+  return updateProduct;
 };
 
 // Hode Product Service
@@ -133,7 +134,47 @@ export const hideProductService = async (id: string, pid: string) => {
   if (product.manufacturer_id.toString() !== id.toString()) {
     throw new AppError(403, "This product does not belong to you");
   }
-  product.isHidden = true;
+  if (product.isHidden === true) {
+    product.isHidden = false;
+  } else {
+    product.isHidden = true;
+  }
   await product.save();
   return null;
+};
+
+// =========================  CUSTOMER SERVICES   ===========================
+
+// Base Pipeline 
+const buildPipeline = (q: any): PipelineStage[] => {
+  const match: Record<string, unknown> = { isHidden: false };
+  const price: Record<string, number> = {};
+  if (q.category) match.category = q.category;
+  if (q.search) match.productName = { $regex: q.search, $options: "i" };
+  if (q.minPrice) price.$gte = Number(q.minPrice);
+  if (q.maxPrice) price.$lte = Number(q.maxPrice);
+  if (Object.keys(price).length > 0) {
+    match.price = price;
+  }
+  const page = Number(q.page) || 1;
+  const limit = Number(q.limit) || 10;
+
+  return [
+    { $match: match },
+    { $sort: { createdAt: -1 } },
+    { $skip: (page - 1) * limit },
+    { $limit: limit },
+  ];
+};
+
+export const getAllProductsService = async (id: string, query: any) => {
+  const user = await userModel.findById(id);
+  if (user.role === "seller") {
+    console.log("Seller Accessing Products");
+    throw new AppError(401, "Only customer can access this route");
+  }
+
+  const products = await productModel.aggregate(buildPipeline(query));
+  console.log(JSON.stringify(buildPipeline(query), null, 2));
+  return products;
 };

@@ -80,6 +80,7 @@ authRoute.get("/get-me", protectMiddleware, getMeController);
 //PATCG /api/v1/auth/update-profile
 authRoute.patch(
   "/get-me",
+  protectMiddleware,
   validateSchemaPayload(updateProfileValidation),
   updateProfileController,
 );
