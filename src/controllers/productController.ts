@@ -2,12 +2,14 @@ import catchAsync from "@src/utils/catchAsync";
 import apiResponse from "@src/utils/apiResponse";
 import { Response, Request } from "express";
 import {
-  createProductService,
-  getProductsService,
-  updateProductService,
+  hideProductService,
+  increseStockService,
   deleteProductService,
+  updateProductService,
+  createProductService,
+  getAllProductsService,
   getProductByIdService,
-  increseStockService
+  getSellerProductsService
 } from "@src/services/productService";
 
 // Create Product Controller
@@ -25,7 +27,7 @@ export const createProductConstroller = catchAsync(
 export const getProductsController = catchAsync(
   async (req: Request, res: Response) => {
     const id = req.user._id;
-    const products = await getProductsService(id);
+    const products = await getSellerProductsService(id);
     const message = "Products Fetched Successfully";
     apiResponse.success(res, products, message, 200);
   },
@@ -36,7 +38,7 @@ export const getProductByIdController = catchAsync(
   async (req: Request, res: Response) => {
     const id = req.user._id;
     const { pid } = req.params;
-    const products = await getProductByIdService(id,pid);
+    const products = await getProductByIdService(id, pid);
     const message = "Products Fetched Successfully";
     apiResponse.success(res, products, message, 200);
   },
@@ -59,19 +61,41 @@ export const deleteProductController = catchAsync(
   async (req: Request, res: Response) => {
     const id = req.user._id;
     const { pid } = req.params;
-    const product = await deleteProductService( id, pid);
+    const product = await deleteProductService(id, pid);
     const message = "Product Deleted Successfully";
     apiResponse.success(res, product, message, 200);
   },
 );
 
-// Update Stock Constroller
-export const increseStockController = catchAsync(async(
-  req: Request, res: Response) => {
-  const body = req.body;
-  const id = req.user._id;
-  const { pid } = req.params;
-  const product = await increseStockService(id, pid, body);
-  const message = "Stock Updated Successfully";
-  apiResponse.success(res, product, message, 200);
-})
+// Hide Product Controller
+export const hideProductController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const { pid } = req.params;
+    await hideProductService(id, pid);
+    apiResponse.success(res, null, "Product updated successfully", 200);
+  },
+);
+
+// Update Stock Controller
+export const increseStockController = catchAsync(
+  async (req: Request, res: Response) => {
+    const body = req.body;
+    const id = req.user._id;
+    const { pid } = req.params;
+    const product = await increseStockService(id, pid, body);
+    const message = "Stock Updated Successfully";
+    apiResponse.success(res, product, message, 200);
+  },
+);
+
+// =========================  CUSTOMER CONTROLLER   =========================
+
+export const getAllProductsController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const products = await getAllProductsService(id, req.query);
+    const message = "Products Fetched Successfully";
+    apiResponse.success(res, products, message, 200);
+  },
+);
