@@ -145,7 +145,7 @@ export const hideProductService = async (id: string, pid: string) => {
 
 // =========================  CUSTOMER SERVICES   ===========================
 
-// Base Pipeline
+// Base Pipeline 
 const buildPipeline = (q: any): PipelineStage[] => {
   const match: Record<string, unknown> = { isHidden: false };
   const price: Record<string, number> = {};
