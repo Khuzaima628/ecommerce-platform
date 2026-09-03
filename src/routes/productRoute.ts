@@ -8,6 +8,7 @@ import {
   increseStockController,
   hideProductController,
   getAllProductsController,
+  addToFavouriteController,
 } from "@src/controllers/productController";
 import validateSchemaPayload from "@src/utils/validateSchemaPayload";
 import {
@@ -65,5 +66,12 @@ productRoute.delete(
 
 // Get all Products (CUSTOMER)
 productRoute.get("/all-products", protectMiddleware, getAllProductsController);
+
+// Add to Favourite Product (CUSTOMER)
+productRoute.post(
+  "/product/favourite/:pid",
+  protectMiddleware,
+  addToFavouriteController,
+);
 
 export default productRoute;

@@ -9,6 +9,7 @@ import {
   createProductService,
   getAllProductsService,
   getProductByIdService,
+  addToFavouriteService,
   getSellerProductsService
 } from "@src/services/productService";
 
@@ -99,3 +100,15 @@ export const getAllProductsController = catchAsync(
     apiResponse.success(res, products, message, 200);
   },
 );
+
+
+// Add To Faviourite Product Service
+export const addToFavouriteController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const { pid } = req.params;
+    const product = await addToFavouriteService(id, pid);
+    const message = "Product Added to Favourite Successfully";
+    apiResponse.success(res, product, message, 200);
+  }
+)

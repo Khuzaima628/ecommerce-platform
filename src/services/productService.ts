@@ -3,7 +3,7 @@ import productModel from "@src/models/productModel";
 import { userModel } from "@src/models/userModel";
 import { CreateProductInput, stockType } from "@src/types/productTypes";
 import AppError from "@src/utils/appError";
-
+import { favouriteProductModel } from "@src/models/favouriteProductModel";
 // Create Product
 export const createProductService = async (
   body: CreateProductInput,
@@ -145,7 +145,7 @@ export const hideProductService = async (id: string, pid: string) => {
 
 // =========================  CUSTOMER SERVICES   ===========================
 
-// Base Pipeline 
+// Base Pipeline
 const buildPipeline = (q: any): PipelineStage[] => {
   const match: Record<string, unknown> = { isHidden: false };
   const price: Record<string, number> = {};
@@ -167,6 +167,7 @@ const buildPipeline = (q: any): PipelineStage[] => {
   ];
 };
 
+// All Products for Customer
 export const getAllProductsService = async (id: string, query: any) => {
   const user = await userModel.findById(id);
   if (user.role === "seller") {
@@ -177,4 +178,42 @@ export const getAllProductsService = async (id: string, query: any) => {
   const products = await productModel.aggregate(buildPipeline(query));
   console.log(JSON.stringify(buildPipeline(query), null, 2));
   return products;
+};
+
+// Add To Faviourite Product Service
+
+export const addToFavouriteService = async (id: string, pid: string) => {
+  // Check if user and product exist
+  if (!id || !pid) {
+    throw new AppError(400, "User id and Product id are required");
+  }
+
+  // Check if user exists
+  const userId = await userModel.findById(id);
+  if (!userId) {
+    throw new AppError(404, "User not found");
+  }
+
+  // Check if product exists
+  const product = await productModel.findById(pid);
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+
+  // Check if the product is already in the user's favourites
+  const alreadyFavourite = await favouriteProductModel.findOne({
+    user_id: id,
+    product_id: pid,
+  });
+  if (alreadyFavourite) {
+    throw new AppError(400, "Product already in favourites");
+  }
+
+  // Add the product to the user's favourites
+  const addFavourite = await favouriteProductModel.create({
+    user_id: id,
+    product_id: pid,
+  });
+
+  return addFavourite;
 };
