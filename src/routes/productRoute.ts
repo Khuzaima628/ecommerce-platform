@@ -8,7 +8,8 @@ import {
   increseStockController,
   hideProductController,
   getAllProductsController,
-  addToFavouriteController,
+  toggleFavouriteController,
+  getFavouriteProductsController,
 } from "@src/controllers/productController";
 import validateSchemaPayload from "@src/utils/validateSchemaPayload";
 import {
@@ -44,6 +45,13 @@ productRoute.post(
   createProductConstroller,
 );
 
+// Get to Favourite Product (CUSTOMER)
+productRoute.get(
+  "/product/favourite",
+  protectMiddleware,
+  getFavouriteProductsController,
+);
+
 // Get Product by Id Route
 productRoute.get("/product/:pid", protectMiddleware, getProductByIdController);
 
@@ -71,7 +79,7 @@ productRoute.get("/all-products", protectMiddleware, getAllProductsController);
 productRoute.post(
   "/product/favourite/:pid",
   protectMiddleware,
-  addToFavouriteController,
+  toggleFavouriteController,
 );
 
 export default productRoute;

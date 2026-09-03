@@ -181,39 +181,38 @@ export const getAllProductsService = async (id: string, query: any) => {
 };
 
 // Add To Faviourite Product Service
-
-export const addToFavouriteService = async (id: string, pid: string) => {
-  // Check if user and product exist
+// Add or Remove a Product from Favourites (toggle)
+export const toggleFavouriteService = async (id: string, pid: string) => {
   if (!id || !pid) {
     throw new AppError(400, "User id and Product id are required");
   }
 
-  // Check if user exists
-  const userId = await userModel.findById(id);
-  if (!userId) {
-    throw new AppError(404, "User not found");
-  }
-
-  // Check if product exists
   const product = await productModel.findById(pid);
   if (!product) {
     throw new AppError(404, "Product not found");
   }
 
-  // Check if the product is already in the user's favourites
-  const alreadyFavourite = await favouriteProductModel.findOne({
+  const existing = await favouriteProductModel.findOne({
     user_id: id,
     product_id: pid,
   });
-  if (alreadyFavourite) {
-    throw new AppError(400, "Product already in favourites");
+
+  if (existing) {
+    await favouriteProductModel.deleteOne({ _id: existing._id });
+    return { favourited: false };
   }
 
-  // Add the product to the user's favourites
-  const addFavourite = await favouriteProductModel.create({
-    user_id: id,
-    product_id: pid,
-  });
-
-  return addFavourite;
+  await favouriteProductModel.create({ user_id: id, product_id: pid });
+  return { favourited: true };
 };
+
+// Get All Favourite Products Service
+export const getFavouriteProductsService = async (id: string) => {
+  const userId = await userModel.findById(id);
+  if (!userId) {
+    throw new AppError(404, "User not found");
+  }
+  const getProduct = await favouriteProductModel.find({user_id: userId._id}).populate("product");
+  console.log("poduct".bgCyan,getProduct)
+  return getProduct
+}
