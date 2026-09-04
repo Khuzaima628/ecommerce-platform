@@ -3,7 +3,7 @@ import productModel from "@src/models/productModel";
 import { userModel } from "@src/models/userModel";
 import { CreateProductInput, stockType } from "@src/types/productTypes";
 import AppError from "@src/utils/appError";
-
+import { favouriteProductModel } from "@src/models/favouriteProductModel";
 // Create Product
 export const createProductService = async (
   body: CreateProductInput,
@@ -145,7 +145,7 @@ export const hideProductService = async (id: string, pid: string) => {
 
 // =========================  CUSTOMER SERVICES   ===========================
 
-// Base Pipeline 
+// Base Pipeline
 const buildPipeline = (q: any): PipelineStage[] => {
   const match: Record<string, unknown> = { isHidden: false };
   const price: Record<string, number> = {};
@@ -167,6 +167,7 @@ const buildPipeline = (q: any): PipelineStage[] => {
   ];
 };
 
+// All Products for Customer
 export const getAllProductsService = async (id: string, query: any) => {
   const user = await userModel.findById(id);
   if (user.role === "seller") {
@@ -178,3 +179,40 @@ export const getAllProductsService = async (id: string, query: any) => {
   console.log(JSON.stringify(buildPipeline(query), null, 2));
   return products;
 };
+
+// Add To Faviourite Product Service
+// Add or Remove a Product from Favourites (toggle)
+export const toggleFavouriteService = async (id: string, pid: string) => {
+  if (!id || !pid) {
+    throw new AppError(400, "User id and Product id are required");
+  }
+
+  const product = await productModel.findById(pid);
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+
+  const existing = await favouriteProductModel.findOne({
+    user_id: id,
+    product_id: pid,
+  });
+
+  if (existing) {
+    await favouriteProductModel.deleteOne({ _id: existing._id });
+    return { favourited: false };
+  }
+
+  await favouriteProductModel.create({ user_id: id, product_id: pid });
+  return { favourited: true };
+};
+
+// Get All Favourite Products Service
+export const getFavouriteProductsService = async (id: string) => {
+  const userId = await userModel.findById(id);
+  if (!userId) {
+    throw new AppError(404, "User not found");
+  }
+  const getProduct = await favouriteProductModel.find({user_id: userId._id}).populate("product");
+  console.log("poduct".bgCyan,getProduct)
+  return getProduct
+}

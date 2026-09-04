@@ -9,7 +9,9 @@ import {
   createProductService,
   getAllProductsService,
   getProductByIdService,
-  getSellerProductsService
+  toggleFavouriteService,
+  getSellerProductsService,
+  getFavouriteProductsService,
 } from "@src/services/productService";
 
 // Create Product Controller
@@ -97,5 +99,28 @@ export const getAllProductsController = catchAsync(
     const products = await getAllProductsService(id, req.query);
     const message = "Products Fetched Successfully";
     apiResponse.success(res, products, message, 200);
+  },
+);
+
+// Add or Remove a Product from Favourites (toggle)
+export const toggleFavouriteController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const { pid } = req.params;
+    const result = await toggleFavouriteService(id, pid);
+    const message = result.favourited
+      ? "Product added to favourites"
+      : "Product removed from favourites";
+    apiResponse.success(res, result, message, 200);
+  },
+);
+
+// // Get All Favourite Products Controller
+export const getFavouriteProductsController = catchAsync(
+  async (req: Request, res: Response) => {
+    const id = req.user._id;
+    const product = await getFavouriteProductsService(id);
+    const message = "Product Fetch Sucessfully";
+    apiResponse.success(res, product, message, 200);
   },
 );
