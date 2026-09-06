@@ -43,18 +43,18 @@ export const removeFromCartService = async (
   productId: string,
 ) => {
   const existingCartItem = await cartProductModel.findOne({
-    user_id: userId,
-    product_id: productId,
+    userId: userId,
+    productId: productId,
   });
-  console.log(productId);
-  if (existingCartItem) {
-    throw new AppError(400, "Item already exist in cart");
+  if (!existingCartItem) {
+    throw new AppError(400, "Item not found in cart");
   }
   const user = await userModel.findById(userId);
   if (!user) {
     throw new AppError(400, "User not found");
   }
-  const deleteCartProduct = await cartProductModel.findOneAndDelete({
+  await cartProductModel.findOneAndDelete({
+    userId,
     productId,
   });
   return null;
