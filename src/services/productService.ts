@@ -213,6 +213,6 @@ export const getFavouriteProductsService = async (id: string) => {
     throw new AppError(404, "User not found");
   }
   const getProduct = await favouriteProductModel.find({user_id: userId._id}).populate("product");
-  console.log("poduct".bgCyan,getProduct)
+  // console.log("poduct".bgCyan,getProduct)
   return getProduct
 }
