@@ -22,7 +22,6 @@ export const addToCartService = async (
     throw new AppError(400, "User not found");
   }
   const product = await productModel.findById(productId);
-  console.log(product.stock);
   if (!product) {
     throw new AppError(400, "Product not found");
   }
@@ -46,7 +45,6 @@ export const removeFromCartService = async (
     user_id: userId,
     product_id: productId,
   });
-  console.log(productId);
   if (existingCartItem) {
     throw new AppError(400, "Item already exist in cart");
   }
