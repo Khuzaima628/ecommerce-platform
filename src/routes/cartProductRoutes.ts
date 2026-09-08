@@ -19,7 +19,7 @@ cartProductRoute.post(
 );
 
 // Remove from Cart Route
-cartProductRoute.delete(
+cartProductRoute.delete(  
   "/cart/:productId",
   protectMiddleware,
   RemoveToCartProductController,
