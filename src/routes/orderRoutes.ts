@@ -5,6 +5,7 @@ import {
   getMyOrdersController,
   getOrderByIdController,
   cancelOrderController,
+  createCheckoutSessionController,
 } from "@src/controllers/orderController";
 
 const orderRoute = Router();
@@ -20,6 +21,13 @@ orderRoute.patch(
   "/order/:oid/cancel",
   protectMiddleware,
   cancelOrderController,
+);
+
+// Checkout Route — turns an order into a Stripe payment link
+orderRoute.post(
+  "/order/:oid/checkout",
+  protectMiddleware,
+  createCheckoutSessionController,
 );
 
 // Get Order By Id Route

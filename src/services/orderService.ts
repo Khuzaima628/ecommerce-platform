@@ -3,9 +3,9 @@ import { orderModel } from "@src/models/orderModel";
 import { cartProductModel } from "@src/models/cartProductModel";
 import productModel from "@src/models/productModel";
 import AppError from "@src/utils/appError";
+import { stripe } from "@src/config/stripe";
 
-// Create Order Service — turns the user's cart into an order.
-// No Stripe yet: the order is created as "pending" / "unpaid".
+
 export const createOrderService = async (userId: string) => {
   const cartItems = await cartProductModel
     .find({ userId })
@@ -15,8 +15,6 @@ export const createOrderService = async (userId: string) => {
     throw new AppError(400, "Your cart is empty");
   }
 
-  // Check every item has enough stock BEFORE we reserve anything —
-  // so we never take some items and fail halfway through.
   for (const cartItem of cartItems) {
     const product = cartItem.productId as any;
     if (cartItem.quantity > product.stock) {
@@ -27,8 +25,6 @@ export const createOrderService = async (userId: string) => {
     }
   }
 
-  // Snapshot each product's name and price NOW, so the order stays
-  // correct even if the seller changes the price or name later.
   const items = cartItems.map((cartItem) => {
     const product = cartItem.productId as any;
     return {
@@ -116,4 +112,27 @@ export const cancelOrderService = async (userId: string, oid: string) => {
   order.status = "cancelled";
   await order.save();
   return order;
+};
+
+export const createCheckoutSessionService = async (userId: string, oid: string) => {
+  const order = await getOrderByIdService(userId, oid);
+
+  const session = await stripe.checkout.sessions.create({
+    mode: "payment",
+    line_items: order.items.map((item:any) => ({
+      price_data: {
+        currency: "usd",
+        product_data: { name: item.productName },
+        unit_amount: item.price * 100, // Stripe wants cents, not dollars
+      },
+      quantity: item.quantity,
+    })),
+    success_url: "http://localhost:5000/api/v1/order/success",
+    cancel_url: "http://localhost:5000/api/v1/order/cancel",
+  });
+
+  order.stripeSessionId = session.id;
+  await order.save();
+
+  return session.url;
 };
