@@ -6,6 +6,7 @@ import {
   getMyOrdersService,
   getOrderByIdService,
   cancelOrderService,
+  createCheckoutSessionService,
 } from "@src/services/orderService";
 
 // Create Order Controller — turns the current cart into an order
@@ -47,5 +48,16 @@ export const cancelOrderController = catchAsync(
     const order = await cancelOrderService(userId, oid);
     const message = "Order Cancelled Successfully";
     apiResponse.success(res, order, message, 200);
+  },
+);
+
+// Create Checkout Session Controller — turns an order into a Stripe payment link
+export const createCheckoutSessionController = catchAsync(
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user?._id;
+    const { oid } = req.params;
+    const url = await createCheckoutSessionService(userId, oid);
+    const message = "Checkout Session Created Successfully";
+    apiResponse.success(res, { url }, message, 200);
   },
 );
