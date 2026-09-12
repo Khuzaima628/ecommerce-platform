@@ -9,6 +9,11 @@ const orderItemSchema = new Schema(
       ref: "Product",
       required: true,
     },
+    seller_id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     productName: {
       type: String,
       required: true,
