@@ -40,13 +40,15 @@ export const getSellerProductsService = async (id: string) => {
 //Get Product by id
 export const getProductByIdService = async (id: string, pid: string) => {
   const product = await productModel.findById(pid);
-  console.log(pid, id);
   if (!product) {
     throw new AppError(404, "Product not found");
   }
-  if (product.manufacturer_id.toString() !== id.toString()) {
+
+  const user = await userModel.findById(id);
+  if (user?.role === "seller" && product.manufacturer_id.toString() !== id.toString()) {
     throw new AppError(403, "This product does not belong to you");
   }
+
   return product;
 };
 
@@ -156,14 +158,11 @@ const buildPipeline = (q: any): PipelineStage[] => {
   if (Object.keys(price).length > 0) {
     match.price = price;
   }
-  const page = Number(q.page) || 1;
   const limit = Number(q.limit) || 10;
 
   return [
     { $match: match },
-    { $sort: { createdAt: -1 } },
-    { $skip: (page - 1) * limit },
-    { $limit: limit },
+    { $sample: { size: limit } },
   ];
 };
 

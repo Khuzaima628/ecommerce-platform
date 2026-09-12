@@ -6,9 +6,21 @@ import {
   getOrderByIdController,
   cancelOrderController,
   createCheckoutSessionController,
+  getSellerOrdersController,
+  updateOrderStatusController,
+  getSellerDashboardController,
 } from "@src/controllers/orderController";
 
 const orderRoute = Router();
+
+// Get Seller Orders Route
+orderRoute.get("/seller/orders", protectMiddleware, getSellerOrdersController);
+
+// Seller Dashboard Route
+orderRoute.get("/seller/dashboard", protectMiddleware, getSellerDashboardController);
+
+// Update Order Status Route
+orderRoute.patch("/seller/orders/:oid/status", protectMiddleware, updateOrderStatusController);
 
 // Create Order Route — checkout the current cart
 orderRoute.post("/order", protectMiddleware, createOrderController);
