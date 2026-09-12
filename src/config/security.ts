@@ -18,8 +18,8 @@ const corsOptions: CorsOptions = {
 
 // Max 100 requests per IP per hour, applied only to the API routes.
 const apiLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  limit: 100,
+  windowMs: 60 * 60 * 2000,
+  limit: 11100,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
