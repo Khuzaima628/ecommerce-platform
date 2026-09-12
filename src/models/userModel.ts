@@ -1,7 +1,6 @@
 import { model, models, Schema, type InferSchemaType } from "mongoose";
 
 enum roles {
-  Admin = "admin",
   Seller = "seller",
   Customer = "customer",
 }
