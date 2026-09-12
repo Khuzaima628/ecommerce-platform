@@ -3,7 +3,6 @@ import apiResponse from "@src/utils/apiResponse";
 import { Request, Response } from "express";
 import { getAllOrdersService, getAllUsersService, getAllProductsAdminService } from "@src/services/adminService";
 
-// Admin Controllers
 
 // Get All Oders
 export const getAllOrdersController = catchAsync(
