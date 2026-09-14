@@ -1,17 +1,13 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-// The connection to MinIO. We make it one time and use it everywhere.
 const s3 = new S3Client({
-  endpoint: process.env.MINIO_ENDPOINT,
-  region: "us-east-1",
+  region: process.env.AWS_REGION as string,
   credentials: {
-    accessKeyId: process.env.MINIO_ACCESS_KEY as string,
-    secretAccessKey: process.env.MINIO_SECRET_KEY as string,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
   },
-  forcePathStyle: true, // MinIO needs this. AWS does not.
 });
 
-// All our images live in this one bucket, inside folders.
-const BUCKET = process.env.MINIO_BUCKET as string;
+const BUCKET = process.env.AWS_S3_BUCKET_NAME as string;
 
 export { s3, BUCKET };

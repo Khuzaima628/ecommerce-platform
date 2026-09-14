@@ -179,8 +179,8 @@ export const createCheckoutSessionService = async (
         },
         quantity: item.quantity,
       })),
-      success_url: "http://localhost:8080/customer/checkout/success",
-      cancel_url: "http://localhost:8080/customer/checkout/cancel",
+      success_url: `${process.env.FRONTEND_URL}/customer/checkout/success`,
+      cancel_url: `${process.env.FRONTEND_URL}/customer/checkout/cancel`,
     },
     {
       idempotencyKey: `checkout-${order._id.toString()}`,
