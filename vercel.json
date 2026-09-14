@@ -3,7 +3,8 @@
   "buildCommand": "npm run build",
   "functions": {
     "dist/server.js": {
-      "runtime": "@vercel/node@3.2.7"
+      "runtime": "@vercel/node@3.2.7",
+      "includeFiles": "dist/**"
     }
   },
   "routes": [
