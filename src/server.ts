@@ -11,15 +11,19 @@ const startServer = async (): Promise<void> => {
   if (!MONGO_URI) {
     throw new Error("MONGO_URI is missing in .env");
   }
-
   await connectDB(MONGO_URI);
 
-  app.listen(PORT, () => {
-    console.log(" SERVER ".bgGreen.black.bold, `running on http://localhost:${PORT}`.green);
-  });
+  // only listen when running locally, not on Vercel
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, () => {
+      console.log(" SERVER ".bgGreen.black.bold, `running on http://localhost:${PORT}`.green);
+    });
+  }
 };
 
 startServer().catch((error: unknown) => {
   console.error(" STARTUP FAILED ".bgRed.white.bold, String(error).red);
   process.exit(1);
 });
+
+export default app;

@@ -20,7 +20,7 @@ export const presignedUrlService = async (body: presignedUrlType) => {
     ContentLength: body.fileSize,
   });
   const uploadUrl = await getSignedUrl(s3, command, { expiresIn: EXPIRES_IN });
-  const fileUrl = `${process.env.MINIO_ENDPOINT}/${BUCKET}/${key}`;
+  const fileUrl = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
   // const check = await s3.send(
   //   new ListObjectsV2Command({
   //     Bucket: BUCKET,
