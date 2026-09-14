@@ -11,9 +11,16 @@ const allowedOrigins = (process.env.CORS_ORIGIN ?? "*").split(",").map((origin) 
 const allowAnyOrigin = allowedOrigins.includes("*");
 
 const corsOptions: CorsOptions = {
-  origin: allowAnyOrigin ? "*" : allowedOrigins,
+  origin: allowAnyOrigin ? "*" : (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
   credentials: !allowAnyOrigin,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 // Max 100 requests per IP per hour, applied only to the API routes.
