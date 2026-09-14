@@ -9,6 +9,17 @@
   "routes": [
     {
       "src": "/(.*)",
+      "methods": ["OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://ecommerce-frontend-steel-zeta-67.vercel.app",
+        "Access-Control-Allow-Methods": "GET,POST,PATCH,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      },
+      "status": 204
+    },
+    {
+      "src": "/(.*)",
       "dest": "dist/server.js"
     }
   ]
