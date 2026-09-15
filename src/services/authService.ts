@@ -47,8 +47,7 @@ export const signUpService = async (body: userType) => {
   // Remove password and otp from response
   const safeUser = createUser.toObject();
   delete safeUser.password;
-  delete safeUser.otp;
-  return safeUser;
+  return { ...safeUser, otp }; // temp: remove before final deploy
 };
 
 // Verify OTP Service
@@ -142,7 +141,7 @@ export const forgotPasswordService = async (body: ForgotPasswordType) => {
   // Save OTP
   await userModel.findOneAndUpdate({ email: body.email }, { otp });
 
-  return null;
+  return { otp }; // temp: remove before final deploy
 };
 
 // Verify Forgot Password OTP
