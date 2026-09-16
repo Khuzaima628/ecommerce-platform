@@ -26,6 +26,14 @@ const orderItemSchema = new Schema(
       type: Number,
       required: true,
     },
+    // Each seller fulfills their own line independently — one order can
+    // hold items from several sellers, and one seller marking their item
+    // "shipped" must never change another seller's item on the same order.
+    status: {
+      type: String,
+      enum: ["pending", "shipped", "delivered", "cancelled"],
+      default: "pending",
+    },
   },
   { _id: false },
 );
@@ -45,9 +53,13 @@ const orderSchema = new Schema(
       type: Number,
       required: true,
     },
+    // Whole-checkout status, before payment: lets the customer cancel the
+    // entire order while it's still pending. Once paid, fulfillment is
+    // tracked PER ITEM instead (see items[].status above), since a single
+    // order can span multiple sellers who ship independently.
     status: {
       type: String,
-      enum: ["pending", "paid", "shipped", "delivered", "cancelled"],
+      enum: ["pending", "paid", "cancelled"],
       default: "pending",
     },
     paymentStatus: {
