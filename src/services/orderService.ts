@@ -82,7 +82,7 @@ export const getSellerDashboardService = async (sellerId: string) => {
     .filter(o => o.paymentStatus === "paid")
     .reduce((sum, o) => {
       const sellerTotal = o.items
-        .filter((item: any) => item.seller_id.toString() === sellerId)
+        .filter((item: any) => item.seller_id.toString() === sellerObjectId.toString())
         .reduce((s: number, item: any) => s + item.price * item.quantity, 0);
       return sum + sellerTotal;
     }, 0);
