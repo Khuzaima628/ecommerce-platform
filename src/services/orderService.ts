@@ -58,11 +58,30 @@ export const createOrderService = async (userId: string) => {
 
 // Get Seller Orders Service
 export const getSellerOrdersService = async (sellerId: string) => {
+  const sellerIdStr = sellerId.toString();
+
   const orders = await orderModel
     .find({ "items.seller_id": sellerId })
     .populate("userId", "name email")
     .sort("-createdAt");
-  return orders;
+
+  // An order can hold items from several sellers. Each seller must only
+  // ever see their own line(s) — never another seller's product, price,
+  // or quantity from the same checkout.
+  return orders.map((order) => {
+    const myItems = order.items.filter(
+      (item: any) => item.seller_id.toString() === sellerIdStr,
+    );
+    const myTotal = myItems.reduce(
+      (sum: number, item: any) => sum + item.price * item.quantity,
+      0,
+    );
+    return {
+      ...order.toObject(),
+      items: myItems,
+      totalAmount: myTotal,
+    };
+  });
 };
 
 // Seller Dashboard Stats Service
@@ -76,16 +95,27 @@ export const getSellerDashboardService = async (sellerId: string) => {
   ]);
 
   const totalOrders = orders.length;
+  // Whole checkout still awaiting payment — genuinely order-level.
   const pendingOrders = orders.filter(o => o.status === "pending").length;
-  const waitingToShip = orders.filter(o => o.status === "paid").length;
-  const revenue = orders
+
+  // Fulfillment is tracked per item now, since one order can span several
+  // sellers who ship independently — so "waiting to ship" counts THIS
+  // seller's own paid-but-not-yet-shipped items, not whole orders.
+  const sellerIdStr = sellerObjectId.toString();
+  const myPaidItems = orders
     .filter(o => o.paymentStatus === "paid")
-    .reduce((sum, o) => {
-      const sellerTotal = o.items
-        .filter((item: any) => item.seller_id.toString() === sellerObjectId.toString())
-        .reduce((s: number, item: any) => s + item.price * item.quantity, 0);
-      return sum + sellerTotal;
-    }, 0);
+    .flatMap(o =>
+      o.items.filter((item: any) => item.seller_id.toString() === sellerIdStr),
+    );
+
+  const waitingToShip = myPaidItems.filter(
+    (item: any) => item.status === "pending",
+  ).length;
+
+  const revenue = myPaidItems.reduce(
+    (sum: number, item: any) => sum + item.price * item.quantity,
+    0,
+  );
 
   return {
     totalProducts,
@@ -103,15 +133,23 @@ export const updateOrderStatusService = async (sellerId: string, oid: string, st
   const order = await orderModel.findById(oid);
   if (!order) throw new AppError(404, "Order not found");
 
-  const isSeller = order.items.some((item: any) => item.seller_id.toString() === sellerId.toString());
-  if (!isSeller) throw new AppError(403, "This order does not belong to you");
+  const sellerIdStr = sellerId.toString();
+  const myItems = order.items.filter(
+    (item: any) => item.seller_id.toString() === sellerIdStr,
+  );
+  if (myItems.length === 0) throw new AppError(403, "This order does not belong to you");
 
   const allowed = ["shipped", "delivered", "cancelled"];
   if (!allowed.includes(status)) throw new AppError(400, `Status must be one of: ${allowed.join(", ")}`);
 
-  order.status = status as any;
+  // Only this seller's own line(s) change — another seller's item on the
+  // same order is untouched.
+  myItems.forEach((item: any) => {
+    item.status = status;
+  });
   await order.save();
-  return order;
+
+  return { ...order.toObject(), items: myItems };
 };
 
 // Get My Orders Service — newest first.
