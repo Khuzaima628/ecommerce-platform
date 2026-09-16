@@ -10,13 +10,6 @@ export const addToCartService = async (
   productId: string,
   body: cartProductType,
 ) => {
-  const existingCartItem = await cartProductModel.findOne({
-    userId: userId,
-    productId: productId,
-  });
-  if (existingCartItem) {
-    throw new AppError(400, "Item already exist in cart");
-  }
   const user = await userModel.findById(userId);
   if (!user) {
     throw new AppError(400, "User not found");
@@ -25,6 +18,25 @@ export const addToCartService = async (
   if (!product) {
     throw new AppError(400, "Product not found");
   }
+
+  const existingCartItem = await cartProductModel.findOne({
+    userId: userId,
+    productId: productId,
+  });
+
+  // Already in the cart — add the new quantity to what's there instead
+  // of blocking, since "add to cart" should never error just because the
+  // item exists already.
+  if (existingCartItem) {
+    const newQuantity = existingCartItem.quantity + body.quantity;
+    if (newQuantity > product.stock) {
+      throw new AppError(400, "Quantity exceeds available stock");
+    }
+    existingCartItem.quantity = newQuantity;
+    await existingCartItem.save();
+    return existingCartItem;
+  }
+
   if (body.quantity > product.stock) {
     throw new AppError(400, "Quantity exceeds available stock");
   }
@@ -41,20 +53,20 @@ export const removeFromCartService = async (
   userId: string,
   productId: string,
 ) => {
-  const existingCartItem = await cartProductModel.findOne({
-    user_id: userId,
-    product_id: productId,
-  });
-  if (existingCartItem) {
-    throw new AppError(400, "Item already exist in cart");
-  }
   const user = await userModel.findById(userId);
   if (!user) {
     throw new AppError(400, "User not found");
   }
-  const deleteCartProduct = await cartProductModel.findOneAndDelete({
+
+  const deletedCartItem = await cartProductModel.findOneAndDelete({
+    userId,
     productId,
   });
+
+  if (!deletedCartItem) {
+    throw new AppError(400, "Item not found in cart");
+  }
+
   return null;
 };
 

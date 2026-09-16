@@ -10,6 +10,13 @@ import connectDB from "@src/config/dbConnection";
 
 const app = express();
 
+// Vercel sits exactly 1 hop in front of this app, so it sets a real
+// X-Forwarded-For header we can trust. Without this, express-rate-limit
+// refuses to start (it can't safely identify a real client IP behind an
+// unacknowledged proxy) and every request 500s. `1` (not `true`) trusts
+// only that one hop, so a client can't spoof extra hops to fake their IP.
+app.set("trust proxy", 1);
+
 // 0. Ensure DB is connected on every cold start
 const MONGO_URI = process.env.MONGO_URI!;
 app.use((_req, _res, next) => {
